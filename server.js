@@ -22,31 +22,31 @@ connection.once('open', function () {
 var transporter = nodemailer.createTransport({
     service: 'outlook',
     auth: {
-      user: 'apexcup@outlook.com',
-      pass: 'xincheng1201'
+        user: 'apexcup@outlook.com',
+        pass: 'xincheng1201'
     }
-  });
+});
 
-todoRoutes.route('/add').post(function(req, res) {
+todoRoutes.route('/add').post(function (req, res) {
     let user = new User(req.body);
     user.save()
         .then(todo => {
-            res.status(200).json({'todo': 'todo added successfully'});
+            res.status(200).json({ 'todo': 'todo added successfully' });
 
             var mailOptions = {
                 from: 'apexcup@outlook.com',
                 to: user.email,
                 subject: 'Alarm!',
-                text: 'Your email address is <'+user.email+'> and your password is <'+user.password+'>.'
-              };
-              
-              transporter.sendMail(mailOptions, function(error, info){
+                text: 'Your email address is <' + user.email + '> and your password is <' + user.password + '>.'
+            };
+
+            transporter.sendMail(mailOptions, function (error, info) {
                 if (error) {
-                  console.log(error);
+                    console.log(error);
                 } else {
-                  console.log('Email sent: ' + user.response);
+                    console.log('Email sent: ' + user.response);
                 }
-              });
+            });
 
 
         })
@@ -56,27 +56,28 @@ todoRoutes.route('/add').post(function(req, res) {
 });
 
 todoRoutes.route('/userdelete/:id').delete(
-    function(req, res) {
+    function (req, res) {
         let id = req.params.id;
         console.log(id);
-        User.deleteOne({_id: id}, function(err, user) {
-          var mailOptions = {
-              from: 'apexcup@outlook.com',
-              to: user.email,
-              subject: 'Alarm!',
-              text: 'Your infomation was deleted by administrator!'
+        User.deleteOne({ _id: id }, function (err, user) {
+            var mailOptions = {
+                from: 'apexcup@outlook.com',
+                to: user.email,
+                subject: 'Alarm!',
+                text: 'Your infomation was deleted by administrator!'
             };
-            
-            transporter.sendMail(mailOptions, function(error, info){
-              if (error) {
-                console.log(error);
-              } else {
-                console.log('Email sent: ' + user.response);
-              }
+
+            transporter.sendMail(mailOptions, function (error, info) {
+                if (error) {
+                    console.log(error);
+                } else {
+                    console.log('Email sent: ' + user.response);
+                }
             });
-            
+
             res.json(user);
-        })}
+        })
+    }
 );
 
 todoRoutes.route('/login').post(function (req, res) {
@@ -202,7 +203,7 @@ todoRoutes.route('/working').post(function (req, res) {
 });
 
 todoRoutes.route('/show').post(function (req, res) {
-   
+
     User.find(function (err, user) {
         // db.user.distinct('name'); 
         console.log(user.name);
@@ -217,7 +218,7 @@ todoRoutes.route('/show').post(function (req, res) {
 
 todoRoutes.route('/showdistinct').post(function (req, res) {
     User.find(function (err, user) {
-        db.user.distinct('name'); 
+        // db.User.distinct('name'); 
         console.log(user.name);
         if (err) {
             console.log("err->", err);
@@ -228,29 +229,61 @@ todoRoutes.route('/showdistinct').post(function (req, res) {
     });
 });
 
-    // todoRoutes.route('/add').post(function (req, res) {
-    //     let user = new User(req.body);
-    //     user.save()
-    //         .then(todo => {
-    //             res.status(200).json({ 'todo': 'todo added successfully' });
-    //         })
-    //         .catch(err => {
-    //             res.status(400).send('adding new todo failed');
-    //         });
-    // });
+// todoRoutes.route('/add').post(function (req, res) {
+//     let user = new User(req.body);
+//     user.save()
+//         .then(todo => {
+//             res.status(200).json({ 'todo': 'todo added successfully' });
+//         })
+//         .catch(err => {
+//             res.status(400).send('adding new todo failed');
+//         });
+// });
 
 
 
 todoRoutes.route('/start').post(function (req, res) {
-    let user = new User(req.body);
-    
-    user.save()
-        .then(todo => {
-            res.status(200).json({ 'todo': 'todo added successfully' });
-        })
-        .catch(err => {
-            res.status(400).send('adding new todo failed');
-        });
+
+    let newUser = new User(req.body);
+
+    User.find(function (err, user) {
+        console.log("user start  ;", err, user);
+
+        if (err) {
+            console.log("error : ", err)
+            res.status(200).json({ 'todo': 'failed' });
+        } else {
+
+            if (user.length == 0) {
+                console.log("here length is", user.length);
+                newUser.save()
+                    .then(todo => {
+                        res.status(200).json({ 'todo': 'todo added successfully' });
+                    })
+                    .catch(err => {
+                        res.status(400).send('adding new todo failed');
+                    });
+            } else {
+
+                res.status(200).json({ 'todo': 'todo added successfully' });
+
+            }
+
+        }
+
+    });
+
+
+        //  user.save()
+        // .then(todo => {
+        //     res.status(200).json({ 'todo': 'todo added successfully' });
+        // })
+        // .catch(err => {
+        //     res.status(400).send('adding new todo failed');
+        // });
+
+
+
 });
 
 todoRoutes.route('/login').post(function (req, res) {
