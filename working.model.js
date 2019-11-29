@@ -1,7 +1,13 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 let Job = new Schema({
-    date: {
+    month: {
+        type: String
+    },
+    day: {
+        type: String
+    },
+    year: {
         type: String
     },
     name: {

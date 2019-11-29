@@ -36,8 +36,8 @@ todoRoutes.route('/add').post(function (req, res) {
             var mailOptions = {
                 from: 'apexcup@outlook.com',
                 to: user.email,
-                subject: 'Alarm!',
-                text: 'Your email address is <' + user.email + '> and your password is <' + user.password + '>.'
+                subject: 'Congratulation! ',
+                text: 'You signup in OUR TEAM! Your email address is <' + user.email + '> and your password is <' + user.password + '>.please login to OUR TEAM Site.'
             };
 
             transporter.sendMail(mailOptions, function (error, info) {
@@ -53,6 +53,53 @@ todoRoutes.route('/add').post(function (req, res) {
         .catch(err => {
             res.status(400).send('adding new todo failed');
         });
+});
+
+todoRoutes.route('/start').post(function (req, res) {
+
+    let newUser = new User(req.body);
+
+    User.find(function (err, user) {
+        console.log("user start  ;", err, user);
+
+        if (err) {
+            console.log("error : ", err)
+            res.status(200).json({ 'todo': 'failed' });
+        } else {
+
+            if (user.length == 0) {
+                console.log("here length is", user.length);
+                newUser.save()
+                    .then(todo => {
+                        res.status(200).json({ 'todo': 'todo added successfully' });
+
+                            var mailOptions = {
+                                from: 'apexcup@outlook.com',
+                                to: newUser.email,
+                                subject: 'Congratulation! ',
+                                text: 'You signup in OUR TEAM! Your email address is <' + newUser.email + '> and your password is <' + newUser.password + '>.please login to OUR TEAM Site.'
+                            };
+                
+                            transporter.sendMail(mailOptions, function (error, info) {
+                                if (error) {
+                                    console.log(error);
+                                } else {
+                                    console.log('Email sent: ' + newUser.response);
+                                }
+                            });
+                    })
+                    .catch(err => {
+                        res.status(400).send('adding new todo failed');
+                    });
+            } else {
+
+                res.status(200).json({ 'todo': 'todo added successfully' });
+
+            }
+
+        }
+
+    }); 
 });
 
 todoRoutes.route('/userdelete/:id').delete(
@@ -242,49 +289,7 @@ todoRoutes.route('/showdistinct').post(function (req, res) {
 
 
 
-todoRoutes.route('/start').post(function (req, res) {
 
-    let newUser = new User(req.body);
-
-    User.find(function (err, user) {
-        console.log("user start  ;", err, user);
-
-        if (err) {
-            console.log("error : ", err)
-            res.status(200).json({ 'todo': 'failed' });
-        } else {
-
-            if (user.length == 0) {
-                console.log("here length is", user.length);
-                newUser.save()
-                    .then(todo => {
-                        res.status(200).json({ 'todo': 'todo added successfully' });
-                    })
-                    .catch(err => {
-                        res.status(400).send('adding new todo failed');
-                    });
-            } else {
-
-                res.status(200).json({ 'todo': 'todo added successfully' });
-
-            }
-
-        }
-
-    });
-
-
-        //  user.save()
-        // .then(todo => {
-        //     res.status(200).json({ 'todo': 'todo added successfully' });
-        // })
-        // .catch(err => {
-        //     res.status(400).send('adding new todo failed');
-        // });
-
-
-
-});
 
 todoRoutes.route('/login').post(function (req, res) {
     User.findOne({ email: req.body.email, password: req.body.password }, function (err, user) {
