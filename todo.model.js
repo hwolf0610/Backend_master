@@ -10,9 +10,6 @@ let reactUser = new Schema({
     address:{
         type:String
     },
-    phonenumber:{
-        type:String
-    },
     email:{
         type:String
     },

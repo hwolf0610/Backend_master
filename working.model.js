@@ -13,19 +13,10 @@ let Job = new Schema({
     name: {
         type: String
     },
-    jobtitle:{
-        type:String
-    },
     clientname:{
         type:String
     },
     price:{
-        type:String
-    },
-    timeline:{
-        type:String
-    },
-    review:{
         type:String
     }
 });

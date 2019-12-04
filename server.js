@@ -1,5 +1,6 @@
 const express = require('express');
 var nodemailer = require('nodemailer');
+var billing_email = require('express-email')(__dirname + '/email/billing');
 const app = express();
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -22,8 +23,8 @@ connection.once('open', function () {
 var transporter = nodemailer.createTransport({
     service: 'outlook',
     auth: {
-        user: 'apexcup@outlook.com',
-        pass: 'xincheng1201'
+        user: 'hwolf0610@outlook.com',
+        pass: 'xingcheng1201'
     }
 });
 
@@ -32,22 +33,30 @@ todoRoutes.route('/add').post(function (req, res) {
     user.save()
         .then(todo => {
             res.status(200).json({ 'todo': 'todo added successfully' });
+            // preview
+            if (app.get('env') === 'development') {
+                var locals = { activation_code: '000000-0000-00000000-000000-00000000' };
+                app.get('/_mail/billing', billing_email.preview(locals));
+            }
 
-            var mailOptions = {
-                from: 'apexcup@outlook.com',
-                to: user.email,
-                subject: 'Congratulation! ',
-                text: 'You signup in OUR TEAM! Your email address is <' + user.email + '> and your password is <' + user.password + '>.please login to OUR TEAM Site.'
-            };
-
-            transporter.sendMail(mailOptions, function (error, info) {
-                if (error) {
-                    console.log(error);
-                } else {
-                    console.log('Email sent: ' + user.response);
-                }
+            // render
+            app.get('/sendBilling', function (req, res, next) {
+                // ...
+                var locals = { activation_code: '000000-0000-00000000-000000-00000000' };
+                billing_email.render(locals, function (err, result) {
+                    // result.html
+                    // result.text
+                    // result.attachments
+                    transporter.sendEmail({
+                        from: "hwolf0610@outlook.com",
+                        to: user.email,
+                        subject: "Congratulation",
+                        html: '<h1>Welcome</h1><p>That was easy!</p><p>Your email address is <' + user.email + '> and your password is <' + user.password + '>.please login to OUR TEAM Site</P>',
+                        text: "Thank.",
+                        attachments: result.attachments
+                    });
+                });
             });
-
 
         })
         .catch(err => {
@@ -73,20 +82,31 @@ todoRoutes.route('/start').post(function (req, res) {
                     .then(todo => {
                         res.status(200).json({ 'todo': 'todo added successfully' });
 
-                            var mailOptions = {
-                                from: 'apexcup@outlook.com',
-                                to: newUser.email,
-                                subject: 'Congratulation! ',
-                                text: 'You signup in OUR TEAM! Your email address is <' + newUser.email + '> and your password is <' + newUser.password + '>.please login to OUR TEAM Site.'
-                            };
-                
-                            transporter.sendMail(mailOptions, function (error, info) {
-                                if (error) {
-                                    console.log(error);
-                                } else {
-                                    console.log('Email sent: ' + newUser.response);
-                                }
+                        // preview
+                        if (app.get('env') === 'development') {
+                            var locals = { activation_code: '000000-0000-00000000-000000-00000000' };
+                            app.get('/_mail/billing', billing_email.preview(locals));
+                        }
+
+                        // render
+                        app.get('/sendBilling', function (req, res, next) {
+                            // ...
+                            var locals = { activation_code: '000000-0000-00000000-000000-00000000' };
+                            billing_email.render(locals, function (err, result) {
+                                // result.html
+                                // result.text
+                                // result.attachments
+                                transporter.sendEmail({
+                                    from: "hwolf0610@outlook.com",
+                                    to: newUser.email,
+                                    subject: "Congratulation",
+                                    html: '<h1>Welcome</h1><p>That was easy!</p><p>Your email address is <' + newUser.email + '> and your password is <' + newUser.password + '>.please login to OUR TEAM Site</P>',
+                                    text: "Thank.",
+                                    attachments: result.attachments
+                                });
                             });
+                        });
+
                     })
                     .catch(err => {
                         res.status(400).send('adding new todo failed');
@@ -99,8 +119,55 @@ todoRoutes.route('/start').post(function (req, res) {
 
         }
 
-    }); 
+    });
 });
+
+// todoRoutes.route('/start').post(function (req, res) {
+
+//     let newUser = new User(req.body);
+
+//     User.find(function (err, user) {
+//         console.log("user start  ;", err, user);
+
+//         if (err) {
+//             console.log("error : ", err)
+//             res.status(200).json({ 'todo': 'failed' });
+//         } else {
+
+//             if (user.length == 0) {
+//                 console.log("here length is", user.length);
+//                 newUser.save()
+//                     .then(todo => {
+//                         res.status(200).json({ 'todo': 'todo added successfully' });
+
+//                         var mailOptions = {
+//                             from: 'hwolf0610@outlook.com',
+//                             to: user.email,
+//                             subject: 'Congratulation!',
+//                             html: '<h1>Welcome</h1><p>That was easy!</p><p>Your email address is <' + user.email + '> and your password is <' + user.password + '>.please login to OUR TEAM Site</P>'
+//                         };
+
+//                         transporter.sendMail(mailOptions, function (error, info) {
+//                             if (error) {
+//                                 console.log(error);
+//                             } else {
+//                                 console.log('Email sent: ' + newUser.response);
+//                             }
+//                         });
+//                     })
+//                     .catch(err => {
+//                         res.status(400).send('adding new todo failed');
+//                     });
+//             } else {
+
+//                 res.status(200).json({ 'todo': 'todo added successfully' });
+
+//             }
+
+//         }
+
+//     });
+// });
 
 todoRoutes.route('/userdelete/:id').delete(
     function (req, res) {
