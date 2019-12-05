@@ -8,10 +8,12 @@ const mongoose = require('mongoose');
 const todoRoutes = express.Router();
 const PORT = 3003;
 let Job = require('./working.model');
+let Plan = require('./plan.model');
 let User = require('./todo.model');
 app.use(cors());
 app.use(bodyParser.json());
 mongoose.connect('mongodb://127.0.0.1:27017/reactUser', { useNewUrlParser: true });
+mongoose.connect('mongodb://127.0.0.1:27017/plan', { useNewUrlParser: true });
 mongoose.connect('mongodb://127.0.0.1:27017/job', { useNewUrlParser: true });
 
 const connection = mongoose.connection;
@@ -269,6 +271,28 @@ todoRoutes.route('/userdelete/:id').delete(
     }
 );
 
+todoRoutes.route('/plandelete/:id').delete(
+    function (req, res) {
+        let id = req.params.id;
+        console.log(id);
+        Plan.deleteOne({ _id: id }, function (err, plan) {
+            res.json(plan);
+        })
+    }
+);
+
+todoRoutes.route('/planadd').post(function (req, res) {
+    console.log("request : ", req.body)
+    let plan = new Plan(req.body);
+    plan.save()
+        .then(todo => {
+            res.status(200).json({ 'todo': 'todo added successfully' });
+        })
+        .catch(err => {
+            res.status(400).send('adding new todo failed');
+        });
+});
+
 todoRoutes.route('/jobadd').post(function (req, res) {
     console.log("request : ", req.body)
     let job = new Job(req.body);
@@ -281,7 +305,7 @@ todoRoutes.route('/jobadd').post(function (req, res) {
         });
 });
 
-todoRoutes.route('/getchart').post(function (req, res) {
+todoRoutes.route('/getJobchart').post(function (req, res) {
     // db.users.find({"name":"Jack"},{"age":1})
 
     Job.find(function (err, job) {
@@ -289,6 +313,19 @@ todoRoutes.route('/getchart').post(function (req, res) {
             console.log("err->", err);
         } else {
             res.json(job);
+
+        }
+    });
+});
+
+todoRoutes.route('/getPlanchart').post(function (req, res) {
+    // db.users.find({"name":"Jack"},{"age":1})
+
+    Plan.find(function (err, plan) {
+        if (err) {
+            console.log("err->", err);
+        } else {
+            res.json(plan);
 
         }
     });
@@ -330,6 +367,20 @@ todoRoutes.route('/show').post(function (req, res) {
     });
 });
 
+todoRoutes.route('/showplan').post(function (req, res) {
+
+    Plan.find(function (err, plan) {
+        // db.user.distinct('name'); 
+        console.log(plan.name);
+        if (err) {
+            console.log("err->", err);
+        } else {
+            res.json(plan);
+
+        }
+    });
+});
+
 todoRoutes.route('/showdistinct').post(function (req, res) {
     User.find(function (err, user) {
         // db.User.distinct('name'); 
@@ -354,8 +405,68 @@ todoRoutes.route('/showdistinct').post(function (req, res) {
 //         });
 // });
 
+todoRoutes.route('/addplan').post(function (req, res) {
+    let newplan = new Plan(req.body);
+    Plan.find(function (err, plan) {
+        console.log("user start  ;", err, plan);
+        if (err) {
+            console.log("error : ", err)
+            res.status(200).json({ 'todo': 'failed' });
+        } else {
+            if (plan.length == 0) {
+                console.log("here length is", plan.length);
+                newplan.save()
+                    .then(todo => {
+                        res.status(200).json({ 'todo': 'todo added successfully' });
+                    })
+                    .catch(err => {
+                        res.status(400).send('adding new todo failed');
+                    });
+            } else {
+                Plan.findOne({ name: req.body.name, month: req.body.month, year: req.body.year }, function (err, plan2) {
+                    if (err) {
+                        console.log("err->", err);
+                    } else {
+                        // plan2.price = req.body.price;
+                        Plan.findByIdAndUpdate(plan2.id, {price: req.body.price}, (err1, res1)=>{
+                            if(err1)
+                                console.log("err ; ", err1)
+                            else{
+                                console.log("update data : ", res1)
+                                res.status(200).json(res1)
+                            }
+
+                        })
+                        
+                        // plan2.save()
+                        //     .then(todo => {
+                        //         res.json('Todo updated!');
+                        //     })
+                        //     .catch(err => {
+                        //         res.status(400).send("Update not possible");
+                        //     });
 
 
+                    }
+
+
+                });
+            }
+        }
+    });
+});
+
+// todoRoutes.route('/addplan').post(function (req, res) {
+//     console.log("request : ", req.body)
+//     let plan = new Plan(req.body);
+//     plan.save()
+//         .then(todo => {
+//             res.status(200).json({ 'todo': 'todo added successfully' });
+//         })
+//         .catch(err => {
+//             res.status(400).send('adding new todo failed');
+//         });
+// });
 
 
 todoRoutes.route('/login').post(function (req, res) {
