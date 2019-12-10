@@ -270,6 +270,36 @@ todoRoutes.route('/userdelete/:id').delete(
         })
     }
 );
+todoRoutes.route('/login').post(function (req, res) {
+    User.findOne({ email: req.body.email, password: req.body.password }, function (err, user) {
+        if (err) {
+            console.log("err->", err);
+        } else {
+            res.json(user);
+
+        }
+    });
+});
+
+todoRoutes.route('/userupdate/:id').post(function (req, res) {
+    let id = req.url.split('/')[2]
+    console.log("req :", id)
+    
+    User.findById(id, function (err, doc) {
+        if (err)console.log("err ; ", err)
+        // doc.name = 'jason bourne';
+        console.log("doc : ", doc)
+        doc.name = req.body.name;
+        doc.birthday = req.body.birthday ;
+        doc.email = req.body.email;
+        doc.address = req.body.address ;
+        doc.password = req.body.password;
+        doc.save(()=>{
+            res.send("sccesss")
+        });
+      });
+    //   User.findByIdAndUpdate(id, req.body);
+});
 
 todoRoutes.route('/plandelete/:id').delete(
     function (req, res) {
