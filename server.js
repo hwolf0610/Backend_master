@@ -22,11 +22,14 @@ connection.once('open', function () {
     console.log("MongoDB database connection established successfully");
 })
 
+// user: 'golden198989@outlook.com',
+// pass: 'admin@123@'
+
 var transporter = nodemailer.createTransport({
     service: 'outlook',
     auth: {
-        user: 'hwolf0610@outlook.com',
-        pass: 'xingcheng1201'
+        user: 'golden198989@outlook.com',
+        pass: 'admin@123@'
     }
 });
 
@@ -50,7 +53,7 @@ todoRoutes.route('/add').post(function (req, res) {
                     // result.text
                     // result.attachments
                     transporter.sendEmail({
-                        from: "hwolf0610@outlook.com",
+                        from: "golden198989@outlook.com",
                         to: user.email,
                         subject: "Congratulation",
                         html: '<h1>Welcome</h1><p>That was easy!</p><p>Your email address is <' + user.email + '> and your password is <' + user.password + '>.please login to OUR TEAM Site</P>',
@@ -99,7 +102,7 @@ todoRoutes.route('/start').post(function (req, res) {
                                 // result.text
                                 // result.attachments
                                 transporter.sendEmail({
-                                    from: "hwolf0610@outlook.com",
+                                    from: "golden198989@outlook.com",
                                     to: newUser.email,
                                     subject: "Congratulation",
                                     html: '<h1>Welcome</h1><p>That was easy!</p><p>Your email address is <' + newUser.email + '> and your password is <' + newUser.password + '>.please login to OUR TEAM Site</P>',
